@@ -1,6 +1,6 @@
 module.exports = {
   // mail settings
-  notifEnabled: false,
+  notifEnabled: true,
 
   // send to
   emailList: [
