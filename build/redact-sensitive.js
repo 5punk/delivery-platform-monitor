@@ -1,10 +1,24 @@
 //Load the library and specify options
 const replace = require("replace-in-file");
-const path = require("path");
+const fs = require("fs");
+
+const beforeDelta = {};
+
+const saveBefore = (file, reg) => {
+  if (!beforeDelta[file]) {
+    beforeDelta[file] = fs.readFileSync(file);
+  }
+  return reg;
+};
 
 const redactMapperFrom = [
-  /['|"](.*)['|"](.*) \/\/ prevent-sensitive-commit-string/g,
-  /\[([^\]]+)](.*) \/\/ prevent-sensitive-commit-array/gm
+  file =>
+    saveBefore(
+      file,
+      /['|"](.*)['|"](.*) \/\/ prevent-sensitive-commit-string/g
+    ),
+  file =>
+    saveBefore(file, /\[([^\]]+)](.*) \/\/ prevent-sensitive-commit-array/gm)
 ];
 const redactMapperTo = [
   '""$2 // prevent-sensitive-commit-string',
@@ -15,16 +29,27 @@ const redact = async () => {
   const options = {
     files: "./src/**/*.js",
     from: redactMapperFrom,
-    to: redactMapperTo
+    to: redactMapperTo,
+    verbose: true
   };
 
   try {
     const results = await replace(options);
-    const changedFiles = results
-      .filter(result => result.hasChanged)
-      .map(result => result.file);
+    const changedFiles = results.filter(result => result.hasChanged);
+    const deltas = changedFiles.map(({ file }) => ({
+      file,
+      data: beforeDelta[file].toString()
+    }));
+    deltas.forEach(({ file, data }) => {
+      console.log("===============");
+      console.log(file);
+      console.log("---------------");
+      console.log(data);
+      console.log("===============");
+    });
 
     console.log("Replacement results:", changedFiles);
+    console.log("===============");
   } catch (error) {
     console.error("Error occurred:", error);
   }
