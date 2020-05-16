@@ -1,0 +1,36 @@
+{
+  "name": "rest-health",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "redact": "node build/redact-sensitive.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "detect-secrets": "^1.0.6",
+    "lodash": "^4.17.15",
+    "mkdirp": "^1.0.4",
+    "moment": "^2.25.3",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.4.6",
+    "puppeteer": "^3.0.4",
+    "puppeteer-extra": "^3.1.9",
+    "puppeteer-extra-plugin-stealth": "^2.4.9"
+  },
+  "devDependencies": {
+    "husky": "^4.2.5",
+    "pre-commit": "^1.2.2",
+    "replace-in-file": "^6.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run redact"
+    }
+  }
+}
