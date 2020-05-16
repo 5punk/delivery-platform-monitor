@@ -60,7 +60,7 @@ This project can be run in 2 modes:
 
 `npm run forever`
 
-Note: Update the [recheckTime](https://github.com/5punk/food-service-monitor/blob/master/src/config/forever.js) to reflect how often you'd like to check the status of your restaurant / store. Don't check too soon / often if you don't want your IP Address to be banned by the platforms.
+Note: Update the [recheckTime](https://github.com/5punk/food-service-monitor/blob/master/src/config/forever.js) to reflect how often you'd like to check the status of your restaurant / store. Don't check too soon / often if you don't want your IP Address to be flagged as suspicious by any platform.
 
 ## Notifications
 
