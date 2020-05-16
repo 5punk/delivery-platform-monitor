@@ -27,10 +27,5 @@
     "husky": "^4.2.5",
     "pre-commit": "^1.2.2",
     "replace-in-file": "^6.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run redact"
-    }
   }
 }

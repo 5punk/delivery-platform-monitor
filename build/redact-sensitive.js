@@ -6,7 +6,6 @@ const redactMapperFrom = [
   /['|"](.*)['|"](.*) \/\/ prevent-sensitive-commit-string/g,
   /\[([^\]]+)](.*) \/\/ prevent-sensitive-commit-array/gm
 ];
-
 const redactMapperTo = [
   '""$2 // prevent-sensitive-commit-string',
   "[]$2 // prevent-sensitive-commit-array"
