@@ -22,7 +22,7 @@ const notify = async ({ subject, body }) => {
 
     try {
       const { response } = await transporter.sendMail(mailOptions);
-      logger.info("[EMAIL]", "Email send success", response);
+      logger.log("[EMAIL]", "Email send success", response);
     } catch (err) {
       const newErr = new Error("[EMAIL] Email send failed! " + err.message);
       logger.error(newErr);

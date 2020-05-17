@@ -5,13 +5,14 @@ const m = require("moment");
 // const dummyPayload = require("./payloads/grubhub.json");
 const { opens, closes } = require("../config/hours");
 const { grubhubId } = require("../config/restaurant");
-const { serviceDownMessage } = require("../config/notify");
+const { serviceDownMessage, consectiveFailure } = require("../config/notify");
 
 const logger = require("../utils/logger");
 const notify = require("../utils/notify");
 const scrape = require("../utils/scrape");
 
 const SERVICE = "GrubHub";
+let debounceCache = [];
 
 const checkGrubhub = async () => {
   const now = m(m(), "h:mma");
@@ -36,12 +37,26 @@ const checkGrubhub = async () => {
       if (available) {
         logger.info("[UP]", `${SERVICE} is online`);
       } else {
-        logger.error("[DOWN]", `${SERVICE} is unavailable`);
+        logger.error(
+          "[DOWN]",
+          `${SERVICE} is unavailable`,
+          JSON.stringify(parsed)
+        );
+        debounceCache.push("FAIL");
 
-        notify({
-          subject: `${SERVICE} is down`,
-          body: serviceDownMessage(SERVICE)
-        });
+        if (debounceCache.length === consectiveFailure) {
+          logger.log(
+            "[FAILURES]",
+            `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
+          );
+
+          notify({
+            subject: `${SERVICE} is down`,
+            body: serviceDownMessage(SERVICE)
+          });
+
+          debounceCache = [];
+        }
       }
     }
   } catch (err) {

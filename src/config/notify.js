@@ -2,6 +2,9 @@ module.exports = {
   // mail settings
   notifEnabled: true,
 
+  // only when fails consecutively x times,
+  consectiveFailure: 2,
+
   // send to
   emailList: [], // prevent-sensitive-commit-array
 
