@@ -2,6 +2,8 @@
 
 Monitor your Restaunt / Store's Food Service Platform availability and notify managers when it becomes unavailable to customers.
 
+<img src="./docs/screenshot.png">
+
 ### Why?
 
 Restaurants often becomes unavailable on food delivery service platforms and they are none the wiser. In order to prevent losing business and ensure the Managers are in the loop about restaurant unavailability, this tool was created.

@@ -55,9 +55,9 @@ const checkDoordash = async () => {
         );
 
       if (available) {
-        logger.info("[UP]", `${SERVICE} is up`);
+        logger.info("[UP]", `${SERVICE} is online`);
       } else {
-        logger.error("[DOWN]", `${SERVICE} is offline`);
+        logger.error("[DOWN]", `${SERVICE} is unavailable`);
 
         notify({
           subject: `${SERVICE} is down`,

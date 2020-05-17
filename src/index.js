@@ -18,7 +18,11 @@ const main = async () => {
 const forever = async () => {
   cycleTimes++;
   logger.log("--------");
-  logger.log("[DAEMON]", cycleTimes, "Re-running script");
+  logger.log(
+    "[DAEMON]",
+    `(${cycleTimes})`,
+    `${recheckTime}ms up. Re-running script.`
+  );
   logger.log("--------");
   await main();
 };
