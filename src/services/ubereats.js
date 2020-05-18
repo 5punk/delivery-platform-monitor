@@ -2,7 +2,7 @@ const fetch = require("node-fetch");
 const _ = require("lodash");
 const m = require("moment");
 
-// const dummyPayload = require("./payloads/ubereats.json");
+const dummyPayload = require("./payloads/ubereats.json");
 const { opens, closes } = require("../config/hours");
 const { ubereatsId } = require("../config/restaurant");
 const { serviceDownMessage, consectiveFailure } = require("../config/notify");
@@ -14,6 +14,12 @@ const SERVICE = "Uber Eats";
 let debounceCache = [];
 
 const checkUberEats = async () => {
+  if (!ubereatsId.length) {
+    return null;
+  }
+
+  global.track.event("CHECKING", "SERVICE", SERVICE);
+
   const now = m(m(), "h:mma");
   const openTime = m(opens, "h:mma");
   const closesTime = m(closes, "h:mma");
@@ -45,20 +51,20 @@ const checkUberEats = async () => {
         );
 
       if (available.length === 1) {
+        debounceCache = [];
+        global.track.event("AVAILABILITY", SERVICE, "UP");
         logger.info("[UP]", `${SERVICE} is online`);
       } else {
-        logger.error(
-          "[DOWN]",
-          `${SERVICE} is unavailable`,
-          JSON.stringify(parsed)
-        );
+        logger.error("[DOWN]", `${SERVICE} is unavailable`);
         debounceCache.push("FAIL");
+        global.track.event("AVAILABILITY", SERVICE, "DOWN");
 
         if (debounceCache.length === consectiveFailure) {
           logger.log(
             "[FAILURES]",
             `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
           );
+          global.track.event("NOTIFY", SERVICE, "Max failures reached");
 
           notify({
             subject: `${SERVICE} is down`,

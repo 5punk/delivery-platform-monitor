@@ -1,8 +1,7 @@
-const fetch = require("node-fetch");
 const _ = require("lodash");
 const m = require("moment");
 
-// const dummyPayload = require("./payloads/grubhub.json");
+const dummyPayload = require("./payloads/grubhub.json");
 const { opens, closes } = require("../config/hours");
 const { grubhubId } = require("../config/restaurant");
 const { serviceDownMessage, consectiveFailure } = require("../config/notify");
@@ -15,6 +14,12 @@ const SERVICE = "GrubHub";
 let debounceCache = [];
 
 const checkGrubhub = async () => {
+  if (!grubhubId.length) {
+    return null;
+  }
+
+  global.track.event("CHECKING", "SERVICE", SERVICE);
+
   const now = m(m(), "h:mma");
   const openTime = m(opens, "h:mma");
   const closesTime = m(closes, "h:mma");
@@ -35,16 +40,17 @@ const checkGrubhub = async () => {
         _.get(parsed, "restaurant_availability.open_pickup", false);
 
       if (available) {
+        global.track.event("AVAILABILITY", SERVICE, "UP");
+        debounceCache = [];
         logger.info("[UP]", `${SERVICE} is online`);
       } else {
-        logger.error(
-          "[DOWN]",
-          `${SERVICE} is unavailable`,
-          JSON.stringify(parsed)
-        );
+        global.track.event("AVAILABILITY", SERVICE, "DOWN");
+        logger.error("[DOWN]", `${SERVICE} is unavailable`);
         debounceCache.push("FAIL");
 
         if (debounceCache.length === consectiveFailure) {
+          global.track.event("NOTIFY", SERVICE, "Max failures reached");
+
           logger.log(
             "[FAILURES]",
             `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`

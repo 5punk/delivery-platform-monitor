@@ -9,10 +9,10 @@ const logger = require("./utils/logger");
 
 let cycleTimes = 0;
 
-const main = async () => {
-  ubereatsId.length && (await checkUberEats());
-  grubhubId.length && (await checkGrubHub());
-  doordashId.length && (await checkDoordash());
+const checkServices = async () => {
+  ubereatsId.length > 0 && (await checkUberEats());
+  grubhubId.length > 0 && (await checkGrubHub());
+  doordashId.length > 0 && (await checkDoordash());
 };
 
 const forever = async () => {
@@ -24,8 +24,18 @@ const forever = async () => {
     `${recheckTime}ms up. Re-running script.`
   );
   logger.log("--------");
-  await main();
+  global.track.event("INIT", "FOREVER", "Rechecking services");
+  await checkServices();
 };
 
-process.env.NODE_ENV === "FOREVER" && setInterval(forever, recheckTime);
-main();
+const init = async () => {
+  const track = await require("./utils/track");
+  global.track = track;
+
+  global.track.page("/", "INIT");
+
+  process.env.NODE_ENV === "FOREVER" && setInterval(forever, recheckTime);
+  await checkServices();
+};
+
+init();

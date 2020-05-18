@@ -65,10 +65,14 @@ const warn = async (tag, ...body) => {
 
 const error = async (tag, ...body) => {
   console.error(chalk.red(tag, ...body));
+  const msgBody = `${ts()} | ${tag} | ${JSON.stringify(body)}`;
+
+  global.track.event("LOGGER", "ERROR", msgBody);
+
   fsLogger &&
     (await fs.appendFileSync(
       path.resolve(`${logPath}/error.log`),
-      `${ts()} | ${tag} | ${JSON.stringify(body)}\n`
+      `${msgBody}\n`
     ));
 };
 
