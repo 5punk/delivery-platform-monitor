@@ -83,3 +83,14 @@ Get Slack notifications immediately via the [Email Webhook](https://slack.com/he
 #### Push Notifications
 
 You can use a service like [Pushover](https://support.pushover.net/i29-e-mailing-notifications-to-your-devices) that supports an email gateway to push notifications to a device or a group of devices.
+
+## Tracking
+
+Anonymous Usage collected
+
+No restaurant / store IDs, names, device information or locations
+or any of that sort of data collected
+Just the basic running statistics to help optimize
+and improve future work
+
+You can always [opt out](https://github.com/5punk/food-service-monitor/blob/master/src/config/track.js#L6), but sending anonymous data will benefit everyone.
