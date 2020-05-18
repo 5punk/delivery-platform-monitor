@@ -1,9 +1,7 @@
 const fetch = require("node-fetch");
 const _ = require("lodash");
-const m = require("moment");
 
 const dummyPayload = require("./payloads/ubereats.json");
-const { opens, closes } = require("../config/hours");
 const { ubereatsId } = require("../config/restaurant");
 const { serviceDownMessage, consectiveFailure } = require("../config/notify");
 
@@ -20,59 +18,53 @@ const checkUberEats = async () => {
 
   global.track.event("CHECKING", "SERVICE", SERVICE);
 
-  const now = m(m(), "h:mma");
-  const openTime = m(opens, "h:mma");
-  const closesTime = m(closes, "h:mma");
-
   try {
-    if (openTime.isBefore(now) && now.isBefore(closesTime)) {
-      const response = await fetch("https://www.ubereats.com/api/getStoreV1", {
-        credentials: "include",
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0",
-          Accept: "*/*",
-          "Accept-Language": "en-US,en;q=0.5",
-          "Content-Type": "application/json",
-          "x-csrf-token": "x"
-        },
-        referrer: "https://www.ubereats.com/",
-        body: `{"storeUuid":"${ubereatsId}","sfNuggetCount":2}`,
-        method: "POST",
-        mode: "cors"
-      });
+    const response = await fetch("https://www.ubereats.com/api/getStoreV1", {
+      credentials: "include",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0",
+        Accept: "*/*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/json",
+        "x-csrf-token": "x"
+      },
+      referrer: "https://www.ubereats.com/",
+      body: `{"storeUuid":"${ubereatsId}","sfNuggetCount":2}`,
+      method: "POST",
+      mode: "cors"
+    });
 
-      const parsed = await response.json();
+    const parsed = await response.json();
 
-      const available =
-        _.get(parsed, "data.isOpen", false) &&
-        _.get(parsed, "data.supportedDiningModes", []).filter(
-          e => e.mode === "DELIVERY" && e.isAvailable
+    const available =
+      _.get(parsed, "data.isOpen", false) &&
+      _.get(parsed, "data.supportedDiningModes", []).filter(
+        e => e.mode === "DELIVERY" && e.isAvailable
+      );
+
+    if (available.length === 1) {
+      debounceCache = [];
+      global.track.event("AVAILABILITY", SERVICE, "UP");
+      logger.info("[UP]", `${SERVICE} is online`);
+    } else {
+      logger.error("[DOWN]", `${SERVICE} is unavailable`);
+      debounceCache.push("FAIL");
+      global.track.event("AVAILABILITY", SERVICE, "DOWN");
+
+      if (debounceCache.length === consectiveFailure) {
+        logger.log(
+          "[FAILURES]",
+          `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
         );
+        global.track.event("NOTIFY", SERVICE, "Max failures reached");
 
-      if (available.length === 1) {
+        notify({
+          subject: `${SERVICE} is down`,
+          body: serviceDownMessage(SERVICE)
+        });
+
         debounceCache = [];
-        global.track.event("AVAILABILITY", SERVICE, "UP");
-        logger.info("[UP]", `${SERVICE} is online`);
-      } else {
-        logger.error("[DOWN]", `${SERVICE} is unavailable`);
-        debounceCache.push("FAIL");
-        global.track.event("AVAILABILITY", SERVICE, "DOWN");
-
-        if (debounceCache.length === consectiveFailure) {
-          logger.log(
-            "[FAILURES]",
-            `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
-          );
-          global.track.event("NOTIFY", SERVICE, "Max failures reached");
-
-          notify({
-            subject: `${SERVICE} is down`,
-            body: serviceDownMessage(SERVICE)
-          });
-
-          debounceCache = [];
-        }
       }
     }
   } catch (err) {

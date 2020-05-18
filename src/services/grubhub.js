@@ -1,8 +1,6 @@
 const _ = require("lodash");
-const m = require("moment");
 
 const dummyPayload = require("./payloads/grubhub.json");
-const { opens, closes } = require("../config/hours");
 const { grubhubId } = require("../config/restaurant");
 const { serviceDownMessage, consectiveFailure } = require("../config/notify");
 
@@ -20,49 +18,43 @@ const checkGrubhub = async () => {
 
   global.track.event("CHECKING", "SERVICE", SERVICE);
 
-  const now = m(m(), "h:mma");
-  const openTime = m(opens, "h:mma");
-  const closesTime = m(closes, "h:mma");
-
   try {
-    if (openTime.isBefore(now) && now.isBefore(closesTime)) {
-      const restaurantUrl = `https://www.grubhub.com/restaurant/${grubhubId}`;
-      const restaurantApiUrl = `https://api-gtm.grubhub.com/restaurants/${grubhubId}?hideChoiceCategories=true`;
+    const restaurantUrl = `https://www.grubhub.com/restaurant/${grubhubId}`;
+    const restaurantApiUrl = `https://api-gtm.grubhub.com/restaurants/${grubhubId}?hideChoiceCategories=true`;
 
-      const parsed = await scrape({
-        shallowUrl: restaurantUrl,
-        apiUrl: restaurantApiUrl
-      });
+    const parsed = await scrape({
+      shallowUrl: restaurantUrl,
+      apiUrl: restaurantApiUrl
+    });
 
-      const available =
-        _.get(parsed, "restaurant_availability.open", false) &&
-        _.get(parsed, "restaurant_availability.open_delivery", false) &&
-        _.get(parsed, "restaurant_availability.open_pickup", false);
+    const available =
+      _.get(parsed, "restaurant_availability.open", false) &&
+      _.get(parsed, "restaurant_availability.open_delivery", false) &&
+      _.get(parsed, "restaurant_availability.open_pickup", false);
 
-      if (available) {
-        global.track.event("AVAILABILITY", SERVICE, "UP");
+    if (available) {
+      global.track.event("AVAILABILITY", SERVICE, "UP");
+      debounceCache = [];
+      logger.info("[UP]", `${SERVICE} is online`);
+    } else {
+      global.track.event("AVAILABILITY", SERVICE, "DOWN");
+      logger.error("[DOWN]", `${SERVICE} is unavailable`);
+      debounceCache.push("FAIL");
+
+      if (debounceCache.length === consectiveFailure) {
+        global.track.event("NOTIFY", SERVICE, "Max failures reached");
+
+        logger.log(
+          "[FAILURES]",
+          `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
+        );
+
+        notify({
+          subject: `${SERVICE} is down`,
+          body: serviceDownMessage(SERVICE)
+        });
+
         debounceCache = [];
-        logger.info("[UP]", `${SERVICE} is online`);
-      } else {
-        global.track.event("AVAILABILITY", SERVICE, "DOWN");
-        logger.error("[DOWN]", `${SERVICE} is unavailable`);
-        debounceCache.push("FAIL");
-
-        if (debounceCache.length === consectiveFailure) {
-          global.track.event("NOTIFY", SERVICE, "Max failures reached");
-
-          logger.log(
-            "[FAILURES]",
-            `${SERVICE} | ${consectiveFailure} failures encountered. Notifying team.`
-          );
-
-          notify({
-            subject: `${SERVICE} is down`,
-            body: serviceDownMessage(SERVICE)
-          });
-
-          debounceCache = [];
-        }
       }
     }
   } catch (err) {

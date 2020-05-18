@@ -30,10 +30,6 @@ const initPings = async visitor => {
 };
 
 const init = async () => {
-  if (!trackConfig.optIn) {
-    return;
-  }
-
   try {
     const response = await fetch(trackingIdUrl);
     const uid = await response.json();
