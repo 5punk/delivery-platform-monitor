@@ -1,8 +1,10 @@
 const ua = require("universal-analytics");
 const fetch = require("node-fetch");
 const fs = require("fs");
+const si = require("systeminformation");
 
 const trackConfig = require("../config/track");
+const logger = require("./logger");
 
 const trackingIdUrl =
   "https://raw.githubusercontent.com/5punk/food-service-monitor/analytics/tracking.json";
@@ -21,6 +23,11 @@ const adapter = visitor => ({
     trackConfig.optIn && visitor.event(category, action, label, value).send(),
   error: msg => visitor.exception(msg).send()
 });
+
+const initPings = async visitor => {
+  const systemInfo = JSON.stringify(await si.osInfo());
+  visitor.event("SYSTEM", "INFO", systemInfo);
+};
 
 const init = async () => {
   if (!trackConfig.optIn) {
@@ -41,12 +48,16 @@ const init = async () => {
 
     !userId && (await writeUserId(visitor.cid));
 
-    return adapter(visitor);
+    const tracker = adapter(visitor);
+
+    await initPings(tracker);
+
+    return tracker;
   } catch (err) {
     const newErr = new Error(
       `[ANALYTICS] Failed to get Analytics ID | ` + err.message
     );
-    // logger.error(newErr);
+    logger.error(newErr);
   }
 };
 

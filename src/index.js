@@ -31,7 +31,6 @@ const forever = async () => {
 const init = async () => {
   const track = await require("./utils/track");
   global.track = track;
-
   global.track.page("/", "INIT");
 
   process.env.NODE_ENV === "FOREVER" && setInterval(forever, recheckTime);

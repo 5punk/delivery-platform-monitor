@@ -88,7 +88,7 @@ You can use a service like [Pushover](https://support.pushover.net/i29-e-mailing
 
 Anonymous Usage collected
 
-No restaurant / store IDs, names, device information or locations
+No restaurant / store IDs, names, locations
 or any of that sort of data collected
 Just the basic running statistics to help optimize
 and improve future work
