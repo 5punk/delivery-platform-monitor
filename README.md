@@ -1,4 +1,4 @@
-# Food Service Monitor
+# Delivery Platform Monitor
 
 Monitor your Restaunt / Store's Food Service Platform availability and notify managers when it becomes unavailable to customers.
 
@@ -86,11 +86,10 @@ You can use a service like [Pushover](https://support.pushover.net/i29-e-mailing
 
 ## Tracking
 
-Anonymous Usage collected
+__Anonymous Usage collected__
 
-No restaurant / store IDs, names, locations
-or any of that sort of data collected
-Just the basic running statistics to help optimize
-and improve future work
+No restaurant / store IDs, names, locations or any of that sort of data collected.
+
+Just the basic running statistics to help optimize and improve future work.
 
 You can always [opt out](https://github.com/5punk/food-service-monitor/blob/master/src/config/track.js#L6), but sending anonymous data will benefit everyone.
