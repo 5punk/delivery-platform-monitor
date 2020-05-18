@@ -1,8 +1,7 @@
 {
-  "name": "rest-health",
+  "name": "delivery-platform-monitor",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
     "forever": "npx cross-env NODE_ENV=FOREVER npm run start",
@@ -11,6 +10,10 @@
   },
   "keywords": [],
   "author": "",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/5punk/delivery-platform-monitor.git"
+  },
   "license": "ISC",
   "dependencies": {
     "chalk": "^4.0.0",
