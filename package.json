@@ -20,7 +20,7 @@
     "lodash": "^4.17.19",
     "mkdirp": "^1.0.4",
     "moment": "^2.25.3",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "nodemailer": "^6.4.6",
     "puppeteer": "^3.0.4",
     "puppeteer-extra": "^3.1.9",
