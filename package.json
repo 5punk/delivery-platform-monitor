@@ -25,7 +25,7 @@
     "puppeteer": "^3.0.4",
     "puppeteer-extra": "^3.1.9",
     "puppeteer-extra-plugin-stealth": "^2.4.9",
-    "systeminformation": "^4.26.1",
+    "systeminformation": "^5.6.4",
     "universal-analytics": "^0.4.20"
   },
   "devDependencies": {
